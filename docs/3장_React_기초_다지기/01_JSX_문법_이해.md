@@ -88,3 +88,276 @@ return (
 ```
 
 ---
+
+### 1-3&#41; JSX 실전 예제와 팁
+
+### ① JSX vs 순수 JavaScript 비교
+
+**※ 순수 JavaScript (JSX 없이)**
+```js
+// 매우 복잡하고 읽기 어려움
+
+React.createElement(
+  View,
+  { style: styles.container },
+  React.createElement(Text, null, 'Hello'),
+  React.createElement(Text, null, 'World')
+);
+```
+
+**※ JSX 사용**
+```jsx
+// 훨씬 직관적이고 읽기 쉽습니다!
+<View style={styles.container}>
+  <Text>Hello</Text>
+  <Text>World</Text>
+</View>
+```
+
+### ② JSX에서 주석 작성하기
+- JSX 내부에서 주석을 작성하려면 특별한 문법을 사용
+```jsx
+function App() {
+  return (
+    <View>
+      {/* JSX 내부 주석: 중괄호 안에 작성합니다 */}
+      <Text>안녕하세요</Text>
+
+      {/* 
+        여러 줄 주석도
+        이렇게 작성할 수 있습니다
+      */}
+
+      {/* 이렇게 하면 안 됩니다: // 주석 */}
+      {/* HTML 주석도 작동하지 않습니다: <!-- 주석 --> */}
+    </View>
+  );
+}
+```
+
+### ③ JSX에서 JavaScript 표현식 사용하기
+- 중괄호 {}를 사용하면 모든 JavaScript 표현식을 사용 가능
+```jsx
+function ProductCard() {
+  const productName = "스마트폰";
+  const price = 1200000;
+  const discount = 0.1;
+  const inStock = true;
+
+  return (
+    <View style={styles.card}>
+      {/* 1. 변수 출력 */}
+      <Text>제품: {productName}</Text>
+
+      {/* 2. 연산 결과 출력 */}
+      <Text>가격: {price * (1 - discount)}원</Text>
+
+      {/* 3. 삼항 연산자 */}
+      <Text>{inStock ? '재고 있음' : '품절'}</Text>
+
+      {/* 4. 논리 연산자 (&&) */}
+      {inStock && <Text style={styles.badge}>구매 가능</Text>}
+
+      {/* 5. 함수 호출 */}
+      <Text>{formatPrice(price)}</Text>
+
+      {/* 6. 배열 메서드 */}
+      <Text>{productName.toUpperCase()}</Text>
+    </View>
+  );
+}
+```
+
+### ④ 조건부 렌더링 패턴
+- JSX에서 조건에 따라 다른 UI를 보여주는 여러 가지 방법이 존재
+
+**※ 방법 1 : 삼항 연산자 (가장 일반적)**
+```jsx
+function WelcomeMessage({ isLoggedIn }) {
+  return (
+    <View>
+      {isLoggedIn ? (
+        <Text>환영합니다, 사용자님!</Text>
+      ) : (
+        <Text>로그인이 필요합니다</Text>
+      )}
+    </View>
+  );
+}
+```
+
+**방법 2 : 논리 AND 연산자 (&&)**
+```jsx
+function Notification({ hasNewMessage, messageCount }) {
+  return (
+    <View>
+      {hasNewMessage && (
+        <Text>새 메시지 {messageCount}개가 있습니다</Text>
+      )}
+    </View>
+  );
+}
+```
+
+**방법 3 : 변수에 저장 (복잡한 조건)**
+```jsx
+function UserStatus({ user }) {
+  let statusComponent;
+
+  if (user.isPremium) {
+    statusComponent = <Text style={styles.premium}>프리미엄 회원</Text>;
+  } else if (user.isVerified) {
+    statusComponent = <Text style={styles.verified}>인증 회원</Text>;
+  } else {
+    statusComponent = <Text style={styles.basic}>일반 회원</Text>;
+  }
+
+  return <View>{statusComponent}</View>;
+}
+```
+
+**방법 4 : 즉시 실행 함수 (IIFE)**
+```jsx
+function ComplexCondition({ status }) {
+  return (
+    <View>
+      {(() => {
+        switch(status) {
+          case 'loading': return <Text>로딩 중...</Text>;
+          case 'success': return <Text>성공!</Text>;
+          case 'error': return <Text>오류 발생</Text>;
+          default: return <Text>대기 중</Text>;
+        }
+      })()}
+    </View>
+  );
+}
+```
+
+### ⑤ 리스트 렌더링 (배열을 UI로 변환)
+- 배열의 각 항목을 UI 요소로 변환하는 것은 매우 자주 사용되는 패턴
+
+**예시 1 : 배열**
+```jsx
+function TodoList() {
+  const todos = ['장보기', '운동하기', '코딩 공부', '책 읽기'];
+
+  return (
+    <View>
+      <Text style={styles.title}>할 일 목록</Text>
+      {todos.map((todo, index) => (
+        // key prop는 필수입니다!
+        <Text key={index} style={styles.todoItem}>
+          {index + 1}. {todo}
+        </Text>
+      ))}
+    </View>
+  );
+}
+```
+
+**예시 2 : 객체 배열**
+```jsx
+function UserList() {
+  const users = [
+    { id: 1, name: '김철수', age: 25 },
+    { id: 2, name: '박영희', age: 30 },
+    { id: 3, name: '이민수', age: 28 }
+  ];
+
+  return (
+    <View>
+      {users.map(user => (
+        <View key={user.id} style={styles.userCard}>
+          <Text>이름: {user.name}</Text>
+          <Text>나이: {user.age}세</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+```
+
+```
+📌 참고
+- 리스트를 렌더링할 때는 반드시 각 항목에 고유한 "key prop"을 제공해야 함
+- React가 어떤 항목이 변경, 추가, 삭제되었는지 효율적으로 파악하는 데 도움이 됨
+```
+
+### ⑥ JSX에서 자주 하는 실수와 해결 방법
+**실수 1 : 중괄호 없이 JavaScript 코드 사용**
+- 잘못된 코드
+```jsx
+<Text>현재 시간: new Date().toLocaleTimeString()</Text>
+// 결과: "현재 시간: new Date().toLocaleTimeString()" (문자열 그대로 출력)
+```
+- 올바른 코드
+```jsx
+<Text>현재 시간: {new Date().toLocaleTimeString()}</Text>
+// 결과: "현재 시간: 14:30:45"
+```
+
+**실수 2 : 여러 개의 루트 요소 반환**
+- 잘못된 코드
+```jsx
+return (
+  <Text>첫 번째</Text>
+  <Text>두 번째</Text>  // 오류!
+);
+```
+- 올바른 코드
+```jsx
+return (
+  <>
+    <Text>첫 번째</Text>
+    <Text>두 번째</Text>
+  </>
+);
+```
+
+**실수 3 : if 문을 JSX 내부에서 직접 사용**
+- 잘못된 코드
+```jsx
+<View>
+  {if (isLoggedIn) {  // 오류! if 문은 표현식이 아닙니다
+    <Text>환영합니다</Text>
+  }}
+</View>
+```
+- 올바른 코드
+```jsx
+<View>
+  {isLoggedIn ? <Text>환영합니다</Text> : null}
+</View>
+```
+
+**실수 4 : 스타일 속성에 문자열 직접 사용**
+- 잘못된 코드
+```jsx
+<Text style="color: red; fontSize: 20">텍스트</Text>
+// React Native에서는 작동하지 않습니다!
+```
+- 올바른 코드
+```jsx
+<Text style={{ color: 'red', fontSize: 20 }}>텍스트</Text>
+// 또는
+const styles = StyleSheet.create({
+  text: { color: 'red', fontSize: 20 }
+});
+<Text style={styles.text}>텍스트</Text>
+```
+
+**실수 5 : 이벤트 핸들러를 즉시 호출**
+- 잘못된 코드
+```jsx
+<Button title="클릭" onPress={handleClick()} />
+// 렌더링 시 즉시 실행되어 버립니다!
+```
+- 올바른 코드
+```jsx
+<Button title="클릭" onPress={handleClick} />
+// 또는 파라미터를 전달해야 한다면
+<Button title="클릭" onPress={() => handleClick(param)} />
+```
+
+---
