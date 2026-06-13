@@ -47,3 +47,57 @@ function App() {
 ```
 
 ---
+
+### 2-2&#41; Props (Properties): 데이터의 단방향 흐름
+- **Props**는 `부모 컴포넌트`가 `자식 컴포넌트`에게 데이터를 전달할 때 사용하는 `읽기 전용(Read-Only)` 속성
+- 컴포넌트 자체는 고정되어 있지만, Props를 통해 전달받는 값에 따라 매번 다른 내용을 표시할 수 있음
+
+### ① Props 전달 (부모 → 자식)
+- Props는 HTML 속성을 지정하듯이 자식 컴포넌트에 원하는 **이름**과 **값**을 할당하여 전달
+```jsx
+// 부모 컴포넌트 (App.js)
+function App() {
+  return (
+    <View>
+      {/* name과 message를 Props로 전달 */}
+      <UserProfile name="김철수" message="오늘의 할 일" /> 
+      <UserProfile name="박영희" message="점심 메뉴 선택" /> 
+    </View>
+  );
+}
+```
+
+### ② Props 받기 및 사용 (자식 컴포넌트)
+- 자식 컴포넌트(`UserProfile`)는 함수의 **매개변수**로 `props`라는 이름의 **객체**를 자동으로 받음
+- 전달받은 값들은 이 `props` 객체의 속성으로 접근할 수 있음
+
+```jsx
+// 자식 컴포넌트 (UserProfile.js)
+// 함수 매개변수로 props 객체를 받습니다.
+function UserProfile(props) {
+  return (
+    <View style={styles.card}>
+      {/* props.name, props.message 형태로 접근하여 사용 */}
+      <Text style={styles.name}>이름: {props.name}</Text>
+      <Text style={styles.message}>메시지: {props.message}</Text>
+    </View>
+  );
+}
+```
+
+### ③ 구조 분해 할당 (Destructuring): 간결한 코드
+- 매번 `props.name`, `props.message`처럼 길게 쓰는 대신, JavaScript의 **구조 분해 할당 문법**을 사용하여 코드를 훨씬 간결하게 만들 수 있음
+
+```jsx
+// 매개변수에서 필요한 속성(name, message)만 바로 꺼내어 사용
+function UserProfile({ name, message }) {
+  return (
+    <View style={styles.card}>
+      <Text style={styles.name}>이름:{name}</Text> {/* props.name 대신 name */}
+      <Text style={styles.message}>메시지:{message}</Text> {/* props.message 대신 message */}
+    </View>
+  );
+}
+```
+
+---
