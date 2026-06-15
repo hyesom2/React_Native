@@ -114,3 +114,158 @@ function UserProfile({ name, message }) {
   - Props는 컴포넌트의 모양과 내용을 동적으로 결정하기 위해 부모로부터 전달되는 설정 값
 
 ---
+
+### 2-4&#41; Props의 고급 사용법
+
+### ① 기본값 설정 (Default Props)
+- Props가 전달되지 않았을 때 사용할 기본값을 설정할 수 있음
+
+### ※ 방법1 : 구조 분행 할당에서 기본값 설정
+```jsx
+function Greeting({ name = '손님', age = 0 }) {
+  return (
+    <View>
+      <Text>안녕하세요, {name}님!</Text>
+      <Text>나이: {age}세</Text>
+    </View>
+  );
+}
+
+// 사용
+<Greeting name="철수" age={25} />  // "철수님", "25세"
+<Greeting name="영희" />           // "영희님", "0세"
+<Greeting />                       // "손님님", "0세"
+```
+
+### ※ 방법2 : defaultProps 사용 (구식이지만 여전히 사용됨)
+```jsx
+function Greeting({ name, age }) {
+  return (
+    <View>
+      <Text>안녕하세요, {name}님!</Text>
+      <Text>나이: {age}세</Text>
+    </View>
+  );
+}
+
+Greeting.defaultProps = {
+  name: '손님',
+  age: 0
+};
+```
+
+### ② Props 타입 검증 (PropTypes)
+- 개발 중에 잘못된 타입의 Props가 전달되는 것을 방지할 수 있음
+
+```jsx
+import PropTypes from 'prop-types';
+
+function UserProfile({ name, age, email, isPremium }) {
+  return (
+    <View>
+      <Text>{name}</Text>
+      <Text>{age}세</Text>
+      <Text>{email}</Text>
+      {isPremium && <Text>프리미엄 회원</Text>}
+    </View>
+  );
+}
+
+// Props 타입 정의
+UserProfile.propTypes = {
+  name: PropTypes.string.isRequired,      // 필수 문자열
+  age: PropTypes.number.isRequired,       // 필수 숫자
+  email: PropTypes.string,                // 선택 문자열
+  isPremium: PropTypes.bool               // 선택 불리언
+};
+```
+
+```
+📌 참고
+- TypeScript를 사용하면 PropTypes 없이도 타입 안정성을 보장할 수 있음
+```
+
+### ③ Children Props (자식 요소 전달)
+- 컴포넌트의 여는 태그와 닫는 태그 사이에 있는 모든 내용은 children prop으로 전달
+
+```jsx
+function Card({ children, title }) {
+  return (
+    <View style={styles.card}>
+      <Text style={styles.title}>{title}</Text>
+      <View style={styles.content}>
+        {children}  {/* 여기에 전달받은 자식 요소가 렌더링됨 */}
+      </View>
+    </View>
+  );
+}
+
+// 사용
+function App() {
+  return (
+    <Card title="사용자 정보">
+      <Text>이름: 김철수</Text>
+      <Text>나이: 25세</Text>
+      <Text>직업: 개발자</Text>
+    </Card>
+  );
+}
+```
+
+### ④ Spread Operator로 Props 전달
+- 여러 Props를 한 번에 전달할 때 유용
+
+```jsx
+function UserCard(props) {
+  return (
+    <View>
+      <Text>{props.name}</Text>
+      <Text>{props.age}세</Text>
+      <Text>{props.email}</Text>
+    </View>
+  );
+}
+
+function App() {
+  const userInfo = {
+    name: '김철수',
+    age: 25,
+    email: 'kim@example.com'
+  };
+
+  // Spread operator로 모든 속성을 한 번에 전달
+  return <UserCard {...userInfo} />;
+
+  // 위 코드는 다음과 같습니다:
+  // <UserCard name="김철수" age={25} email="kim@example.com" />
+}
+```
+
+### ⑤ 함수를 Props로 전달 (콜백)
+- 자식 컴포넌트에서 부모 컴포넌트의 함수를 호출할 수 있음
+
+```jsx
+function ParentComponent() {
+  const handleButtonClick = (buttonName) => {
+    console.log(`${buttonName} 버튼이 클릭되었습니다!`);
+  };
+
+  return (
+    <View>
+      <ChildButton 
+        label="확인" 
+        onPress={handleButtonClick}  // 함수를 props로 전달
+      />
+    </View>
+  );
+}
+
+function ChildButton({ label, onPress }) {
+  return (
+    <Button 
+      title={label}
+      onPress={() => onPress(label)}  // 부모의 함수 호출
+    />
+  );
+}
+```
