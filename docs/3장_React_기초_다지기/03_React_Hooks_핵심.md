@@ -61,3 +61,43 @@ function useCustomHook() {
 
 ---
 
+### 3-1&#41; `useState` : 컴포넌트의 상태(State) 관리
+- **State**는 시간이 지남에 따라 **변화할 수 있는 데이터**를 의미하며, 이 데이터가 변경될 때마다 React는 해당 컴포넌트를 **자동으로 다시 그려(Re-render)** 화면을 업데이트
+- `useState` Hook은 컴포넌트가 이러한 변경 가능한 데이터를 기억하고 관리
+
+### ① useState의 작동 원리
+- `useState` 함수를 호출하면 두 개의 요소를 가진 배열을 반환
+1. **현재 상태 값 (Current State)** : 현재 컴포넌트가 기억하고 있는 값
+2. **상태 설정 함수 (Setter Function)** : 상태 값을 업데이트할 때 사용하는 함수로, **이 함수를 통해서만** 상태를 변경해야 React가 변화를 감지하고 리렌더링
+
+### ※ 기본 구조
+```jsx
+import React, { useState } from 'react';
+
+function Counter() {
+  // 1. useState 호출: 초기값(0)을 설정합니다.
+  //    count: 현재 값, setCount: 값을 변경할 함수
+  const [count, setCount] = useState(0); 
+
+  // 2. 상태 설정 함수를 사용하여 값 변경
+  const increment = () => {
+    // setCount를 호출하면 React는 count 값을 변경하고 컴포넌트를 리렌더링합니다.
+    setCount(count + 1); 
+  };
+
+  return (
+    <View>
+      <Text>현재 숫자: {count}</Text>
+      <Button title="증가" onPress={increment} />
+    </View>
+  );
+}
+```
+
+### ※ 핵심 사항
+- **초기값** : `useState(0)`처럼 괄호 안에 상태의 **초기값**을 넣음(숫자, 문자열, 불리언, 객체, 배열 모두 가능)
+- **불변성(Immutability)**
+  - 상태를 업데이트할 때는 **기존 값을 직접 수정하지 않고**, `setCount(새로운 값)`처럼 **완전히 새로운 값**으로 덮어씌워야 함
+  - 특히 객체나 배열을 다룰 때 이 규칙이 매우 중요
+
+---
