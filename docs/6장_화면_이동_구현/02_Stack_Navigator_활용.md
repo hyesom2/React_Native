@@ -168,4 +168,210 @@ function DetailsScreen({ route, navigation }) {
 }
 ```
 
+### 2-4&#41; 헤더 커스터마이징
+-Stack Navigator의 상단 헤더는 매우 유연하게 커스터마이징할 수 있음
+
+**① 기본 헤더 스타일링**
+```jsx
+<Stack.Navigator
+  screenOptions={{
+    // 모든 화면에 공통으로 적용되는 헤더 스타일
+    headerStyle: {
+      backgroundColor: '#007AFF',
+    },
+    headerTintColor: '#fff',  // 뒤로 가기 버튼과 제목 색상
+    headerTitleStyle: {
+      fontWeight: 'bold',
+      fontSize: 20,
+    },
+    headerTitleAlign: 'center',  // 제목 정렬 (iOS는 center, Android는 left가 기본)
+  }}
+>
+  <Stack.Screen name="Home" component={HomeScreen} />
+  <Stack.Screen 
+    name="Details" 
+    component={DetailsScreen}
+    options={{
+      // 이 화면만 다른 스타일 적용
+      headerStyle: {
+        backgroundColor: '#FF3B30',
+      }
+    }}
+  />
+</Stack.Navigator>
+```
+**② 헤더 버튼 추가**
+```jsx
+import { TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+
+function HomeScreen({ navigation }) {
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => alert('설정 버튼 클릭!')}
+          style={{ marginRight: 15 }}
+        >
+          <Ionicons name="settings-outline" size={24} color="white" />
+        </TouchableOpacity>
+      ),
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ marginLeft: 15 }}
+        >
+          <Ionicons name="arrow-back" size={24} color="white" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
+  return (
+    <View style={styles.container}>
+      <Text>홈 화면</Text>
+    </View>
+  );
+}
+```
+
+**③ 커스텀 헤더**
+```jsx
+function CustomHeader({ navigation, route }) {
+  return (
+    <View style={styles.customHeader}>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={24} color="white" />
+      </TouchableOpacity>
+      <Text style={styles.customHeaderTitle}>{route.name}</Text>
+      <TouchableOpacity onPress={() => alert('검색')}>
+        <Ionicons name="search" size={24} color="white" />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+<Stack.Screen 
+  name="Home" 
+  component={HomeScreen}
+  options={{
+    header: (props) => <CustomHeader {...props} />
+  }}
+/>
+
+const styles = StyleSheet.create({
+  customHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    paddingTop: 50,  // SafeArea 고려
+    backgroundColor: '#007AFF',
+  },
+  customHeaderTitle: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  }
+});
+```
+
+**④ 헤더 숨기기**
+```jsx
+<Stack.Screen 
+  name="Splash" 
+  component={SplashScreen}
+  options={{
+    headerShown: false  // 헤더 완전히 숨기기
+  }}
+/>
+```
+
+### 2-5&#41; 화면 전환 애니메이션
+- Stack Navigator는 기본적으로 플랫폼에 맞는 애니메이션을 제공하지만, 커스터마이징도 가능
+
+```jsx
+<Stack.Navigator
+  screenOptions={{
+    // iOS 스타일 (오른쪽에서 슬라이드)
+    cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+
+    // Android 스타일 (아래에서 위로)
+    // cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+
+    // 페이드 인/아웃
+    // cardStyleInterpolator: CardStyleInterpolators.forFadeFromBottomAndroid,
+
+    // 애니메이션 속도
+    transitionSpec: {
+      open: {
+        animation: 'timing',
+        config: {
+          duration: 300,
+        },
+      },
+      close: {
+        animation: 'timing',
+        config: {
+          duration: 300,
+        },
+      },
+    },
+  }}
+>
+  {/* 화면들 */}
+</Stack.Navigator>
+```
+
+---
+
+### ※ Stack Navigator 베스트 프랙티스
+**① 화면 컴포넌트는 별도 파일로 분리**
+```
+screens/
+  ├── HomeScreen.js
+  ├── DetailsScreen.js
+  └── ProfileScreen.js
+navigation/
+  └── AppNavigator.js
+```
+
+**② TypeScript 사용 시 타입 정의**
+```ts
+type RootStackParamList = {
+  Home: undefined;
+  Details: { itemId: number; title: string };
+  Profile: { userId: string };
+};
+```
+
+**③ navigation과 route의 타입**
+```jsx
+// navigation prop 사용
+function HomeScreen({ navigation }) {
+  // navigation.navigate, navigation.goBack 등 사용
+}
+
+// route prop 사용 (params가 있을 때)
+function DetailsScreen({ route, navigation }) {
+  const { itemId, title } = route.params;
+}
+```
+
+**④ 조건부 화면 등록**
+```jsx
+const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+<Stack.Navigator>
+  {isLoggedIn ? (
+    <>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
+    </>
+  ) : (
+    <Stack.Screen name="Login" component={LoginScreen} />
+  )}
+</Stack.Navigator>
+```
+
 ---
